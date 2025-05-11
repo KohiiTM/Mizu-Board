@@ -27,8 +27,6 @@ function App() {
   const drawingCanvasRef = useRef<DrawingCanvasRef>(null);
   const [textBoxes, setTextBoxes] = useState<TextBox[]>([]);
   const [selectedTextBox, setSelectedTextBox] = useState<string | null>(null);
-  const [isCreatingTextBox, setIsCreatingTextBox] = useState(false);
-  const [textBoxStartPos, setTextBoxStartPos] = useState({ x: 0, y: 0 });
   const [isDraggingTextBox, setIsDraggingTextBox] = useState(false);
   const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
 
