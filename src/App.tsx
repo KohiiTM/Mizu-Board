@@ -11,7 +11,6 @@ function App() {
   const [color, setColor] = useState("#ff0000");
   const [lineWidth, setLineWidth] = useState(2);
 
-  // Function to clear the canvas
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -26,21 +25,17 @@ function App() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Get the device pixel ratio
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
 
-    // Set the canvas size to match the display size
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
 
-    // Scale the context to match the device pixel ratio
     const ctx = canvas.getContext("2d");
     if (ctx) {
       ctx.scale(dpr, dpr);
     }
 
-    // Store the current canvas content
     const storeCanvasContent = () => {
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = canvas.width;
@@ -52,22 +47,16 @@ function App() {
       return tempCanvas;
     };
 
-    // Set canvas to full screen while preserving content
     const resizeCanvas = () => {
       const tempCanvas = storeCanvasContent();
       const rect = canvas.getBoundingClientRect();
-      const oldWidth = canvas.width;
-      const oldHeight = canvas.height;
 
-      // Update canvas size
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
 
       const ctx = canvas.getContext("2d");
       if (ctx && tempCanvas) {
-        // Scale the context
         ctx.scale(dpr, dpr);
-        // Draw the stored content
         ctx.drawImage(tempCanvas, 0, 0);
       }
     };
@@ -75,7 +64,6 @@ function App() {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    // Add keyboard shortcut for toggling fullscreen
     const handleKeyPress = async (e: KeyboardEvent) => {
       if (e.key === "F11" || (e.ctrlKey && e.key === "f")) {
         e.preventDefault();
@@ -102,7 +90,6 @@ function App() {
     if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
 
     return {
       x: e.clientX - rect.left,
@@ -158,7 +145,6 @@ function App() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Reset composite operation after drawing
     ctx.globalCompositeOperation = "source-over";
   };
 
