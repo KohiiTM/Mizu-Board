@@ -22,3 +22,31 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Documentation and markdown files
+*.md
+docs/
+documentation/
+
+# Boilerplate and generated code
+*.generated.*
+*.boilerplate.*
+*.template.*
+*.example.*
+*.sample.*
+*.stub.*
+*.mock.*
+*.test.*
+*.spec.*
+*.min.*
+*.bundle.*
+*.chunk.*
+*.map
+
+# Build and cache directories
+.cache/
+build/
+coverage/
+.nyc_output/
+.temp/
+.tmp/
