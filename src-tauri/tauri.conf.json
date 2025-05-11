@@ -21,7 +21,7 @@
         "fullscreen": false,
         "resizable": true,
         "center": true,
-        "skipTaskbar": true,
+        "skipTaskbar": false,
         "focus": false,
         "visible": true
       }
