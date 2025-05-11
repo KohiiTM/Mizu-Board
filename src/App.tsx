@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Window, LogicalSize, LogicalPosition } from "@tauri-apps/api/window";
 import TextBox from "./components/TextBox";
+import DrawingCanvas from "./components/DrawingCanvas";
 import "./App.css";
 
 type DrawingTool = "pen" | "eraser" | "text" | "mouse";
@@ -18,8 +19,6 @@ interface TextBox {
 }
 
 function App() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
   const [currentTool, setCurrentTool] = useState<DrawingTool>("pen");
   const [color, setColor] = useState("#ff0000");
   const [lineWidth, setLineWidth] = useState(2);
@@ -72,85 +71,7 @@ function App() {
     }
   };
 
-  const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  };
-
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.scale(dpr, dpr);
-    }
-
-    const storeCanvasContent = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return null;
-
-      const tempCanvas = document.createElement("canvas");
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
-      const tempCtx = tempCanvas.getContext("2d");
-      if (tempCtx) {
-        tempCtx.drawImage(canvas, 0, 0);
-      }
-      return {
-        canvas: tempCanvas,
-        textBoxes: textBoxes,
-      };
-    };
-
-    const resizeCanvas = () => {
-      const content = storeCanvasContent();
-      if (!content) return;
-
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-
-      const ctx = canvas.getContext("2d");
-      if (ctx && content.canvas) {
-        ctx.scale(dpr, dpr);
-        ctx.drawImage(content.canvas, 0, 0);
-      }
-
-      // Adjust text box positions based on scale
-      const scaleX = canvas.width / content.canvas.width;
-      const scaleY = canvas.height / content.canvas.height;
-
-      setTextBoxes((prev) =>
-        prev.map((box) => ({
-          ...box,
-          x: box.x * scaleX,
-          y: box.y * scaleY,
-          width: box.width * scaleX,
-          height: box.height * scaleY,
-        }))
-      );
-    };
-
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
-
     const handleKeyPress = async (e: KeyboardEvent) => {
       if (e.altKey && e.key === "a") {
         e.preventDefault();
@@ -181,9 +102,6 @@ function App() {
           case "m":
             setCurrentTool("mouse");
             break;
-          case "c":
-            clearCanvas();
-            break;
           case "Delete":
             if (selectedTextBox) {
               setTextBoxes((prev) =>
@@ -202,178 +120,20 @@ function App() {
     };
 
     window.addEventListener("keydown", handleKeyPress);
-
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
       window.removeEventListener("keydown", handleKeyPress);
     };
   }, [isAnnotationMode]);
 
-  const getCanvasCoordinates = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-
-    const rect = canvas.getBoundingClientRect();
-
+  const getCanvasCoordinates = (
+    e: React.MouseEvent<HTMLCanvasElement | HTMLDivElement>
+  ) => {
+    const target = e.currentTarget;
+    const rect = target.getBoundingClientRect();
     return {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
     };
-  };
-
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isAnnotationMode || currentTool === "mouse") return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const { x, y } = getCanvasCoordinates(e);
-
-    if (currentTool === "text") {
-      setIsCreatingTextBox(true);
-      setTextBoxStartPos({ x, y });
-      return;
-    }
-
-    if (currentTool === "eraser") {
-      const clickedTextBox = textBoxes.find(
-        (box) =>
-          x >= box.x &&
-          x <= box.x + box.width &&
-          y >= box.y &&
-          y <= box.y + box.height
-      );
-      if (clickedTextBox) {
-        setTextBoxes((prev) =>
-          prev.filter((box) => box.id !== clickedTextBox.id)
-        );
-        if (selectedTextBox === clickedTextBox.id) {
-          setSelectedTextBox(null);
-        }
-        return;
-      }
-    }
-
-    setIsDrawing(true);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-
-    if (currentTool === "eraser") {
-      ctx.globalCompositeOperation = "destination-out";
-    } else {
-      ctx.globalCompositeOperation = "source-over";
-      ctx.strokeStyle = color;
-    }
-
-    ctx.lineWidth = lineWidth;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-  };
-
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isAnnotationMode || currentTool === "mouse") return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const { x, y } = getCanvasCoordinates(e);
-
-    if (isCreatingTextBox && currentTool === "text") {
-      // Draw a preview rectangle
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.beginPath();
-      ctx.strokeStyle = "#4caf50";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
-      ctx.strokeRect(
-        textBoxStartPos.x,
-        textBoxStartPos.y,
-        x - textBoxStartPos.x,
-        y - textBoxStartPos.y
-      );
-      ctx.setLineDash([]);
-      return;
-    }
-
-    if (!isDrawing) return;
-
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const stopDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (isCreatingTextBox && currentTool === "text") {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      const { x: mouseX, y: mouseY } = getCanvasCoordinates(e);
-
-      const width = Math.abs(mouseX - textBoxStartPos.x);
-      const height = Math.abs(mouseY - textBoxStartPos.y);
-
-      // Ensure minimum size
-      const minWidth = 100;
-      const minHeight = 20;
-
-      const newTextBox: TextBox = {
-        id: Date.now().toString(),
-        x: Math.min(textBoxStartPos.x, mouseX),
-        y: Math.min(textBoxStartPos.y, mouseY),
-        text: "",
-        width: Math.max(width, minWidth),
-        height: Math.max(height, minHeight),
-        isEditing: true,
-        textColor: "#000000", // Default to black
-        backgroundColor: "#ffffff", // Default to white
-      };
-
-      setTextBoxes((prev) => [...prev, newTextBox]);
-      setSelectedTextBox(newTextBox.id);
-      setIsCreatingTextBox(false);
-      setCurrentTool("mouse");
-
-      // Clear the preview rectangle
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
-      return;
-    }
-
-    setIsDrawing(false);
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.globalCompositeOperation = "source-over";
-  };
-
-  const handleTextBoxClick = (id: string) => {
-    setSelectedTextBox(id);
-    setTextBoxes((prev) =>
-      prev.map((box) => ({
-        ...box,
-        isEditing: box.id === id,
-      }))
-    );
-  };
-
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!selectedTextBox) return;
-
-    setTextBoxes((prev) =>
-      prev.map((box) =>
-        box.id === selectedTextBox ? { ...box, text: e.target.value } : box
-      )
-    );
   };
 
   const handleTextBoxMouseDown = (
@@ -454,6 +214,16 @@ function App() {
     );
   };
 
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!selectedTextBox) return;
+
+    setTextBoxes((prev) =>
+      prev.map((box) =>
+        box.id === selectedTextBox ? { ...box, text: e.target.value } : box
+      )
+    );
+  };
+
   // Add click outside handler to hide controls
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -525,13 +295,6 @@ function App() {
               onChange={(e) => setLineWidth(Number(e.target.value))}
               title="Line Width"
             />
-            <button
-              onClick={clearCanvas}
-              className="clear-button"
-              title="Clear Canvas (C)"
-            >
-              Clear
-            </button>
           </>
         )}
         <button
@@ -543,13 +306,11 @@ function App() {
       </div>
       {isAnnotationMode && (
         <div className="canvas-container">
-          <canvas
-            ref={canvasRef}
-            onMouseDown={startDrawing}
-            onMouseMove={draw}
-            onMouseUp={stopDrawing}
-            onMouseOut={stopDrawing}
-            className="drawing-canvas"
+          <DrawingCanvas
+            isAnnotationMode={isAnnotationMode}
+            currentTool={currentTool}
+            color={color}
+            lineWidth={lineWidth}
           />
           {textBoxes.map((box) => (
             <TextBox
