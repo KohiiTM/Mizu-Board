@@ -9,6 +9,7 @@ interface TextBoxProps {
   height: number;
   isEditing: boolean;
   isSelected: boolean;
+  currentTool: string;
   onTextChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
   onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
@@ -30,6 +31,7 @@ const TextBox: React.FC<TextBoxProps> = ({
   height,
   isEditing,
   isSelected,
+  currentTool,
   onTextChange,
   onMouseDown,
   onMouseMove,
@@ -52,6 +54,7 @@ const TextBox: React.FC<TextBoxProps> = ({
   }, [isEditing]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (currentTool !== "mouse") return;
     if (e.button === 0) {
       e.stopPropagation();
       setIsDragging(true);
@@ -60,6 +63,7 @@ const TextBox: React.FC<TextBoxProps> = ({
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (currentTool !== "mouse") return;
     if (isDragging) {
       e.stopPropagation();
       onMouseMove(e);
@@ -67,6 +71,7 @@ const TextBox: React.FC<TextBoxProps> = ({
   };
 
   const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (currentTool !== "mouse") return;
     if (isDragging) {
       e.stopPropagation();
       setIsDragging(false);
@@ -75,6 +80,7 @@ const TextBox: React.FC<TextBoxProps> = ({
   };
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (currentTool !== "mouse") return;
     if (!isEditing && !isDragging) {
       e.stopPropagation();
       setShowControls(true);
@@ -82,6 +88,7 @@ const TextBox: React.FC<TextBoxProps> = ({
   };
 
   const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (currentTool !== "mouse") return;
     e.stopPropagation();
     onDoubleClick();
   };
@@ -97,7 +104,9 @@ const TextBox: React.FC<TextBoxProps> = ({
         width,
         height,
         backgroundColor,
+        pointerEvents: currentTool === "mouse" ? "auto" : "none",
       }}
+      data-id={id}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}

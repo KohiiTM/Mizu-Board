@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Window, LogicalSize, LogicalPosition } from "@tauri-apps/api/window";
 import TextBox from "./components/TextBox";
-import DrawingCanvas from "./components/DrawingCanvas";
+import DrawingCanvas, { DrawingCanvasRef } from "./components/DrawingCanvas";
 import "./App.css";
 
 type DrawingTool = "pen" | "eraser" | "text" | "mouse";
@@ -19,11 +19,12 @@ interface TextBox {
 }
 
 function App() {
-  const [currentTool, setCurrentTool] = useState<DrawingTool>("pen");
+  const [currentTool, setCurrentTool] = useState<DrawingTool>("mouse");
   const [color, setColor] = useState("#ff0000");
   const [lineWidth, setLineWidth] = useState(2);
   const [isAnnotationMode, setIsAnnotationMode] = useState(false);
   const appWindow = useRef<Window | null>(null);
+  const drawingCanvasRef = useRef<DrawingCanvasRef>(null);
   const [textBoxes, setTextBoxes] = useState<TextBox[]>([]);
   const [selectedTextBox, setSelectedTextBox] = useState<string | null>(null);
   const [isCreatingTextBox, setIsCreatingTextBox] = useState(false);
@@ -273,9 +274,9 @@ function App() {
             <button
               className={currentTool === "eraser" ? "active" : ""}
               onClick={() => setCurrentTool("eraser")}
-              title="Eraser Tool (E)"
+              title="Object Eraser (E) - Click to remove strokes and text boxes"
             >
-              Eraser
+              Object Eraser
             </button>
             <button
               className={currentTool === "text" ? "active" : ""}
@@ -302,6 +303,7 @@ function App() {
               onClick={() => {
                 setTextBoxes([]);
                 setSelectedTextBox(null);
+                drawingCanvasRef.current?.clear();
               }}
               className="clear-button"
               title="Clear Canvas (C)"
@@ -320,6 +322,7 @@ function App() {
       {isAnnotationMode && (
         <div className="canvas-container">
           <DrawingCanvas
+            ref={drawingCanvasRef}
             isAnnotationMode={isAnnotationMode}
             currentTool={currentTool}
             color={color}
@@ -345,6 +348,7 @@ function App() {
               height={box.height}
               isEditing={box.isEditing}
               isSelected={selectedTextBox === box.id}
+              currentTool={currentTool}
               onTextChange={handleTextChange}
               onMouseDown={(e) => handleTextBoxMouseDown(e, box.id)}
               onMouseMove={(e) => handleTextBoxMove(e, box.id)}

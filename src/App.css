@@ -124,6 +124,24 @@ button {
 
 .app-container.active {
   pointer-events: auto;
+  position: relative;
+}
+
+.app-container.active::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.canvas-container {
+  position: relative;
+  z-index: 1;
 }
 
 .drawing-canvas {
@@ -351,4 +369,45 @@ body {
 .text-box-controls input[type="color"]:hover {
   transform: scale(1.1);
   transition: transform 0.2s ease;
+}
+
+.eraser-container {
+  position: relative;
+  display: inline-block;
+}
+
+.eraser-modes {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1001;
+  margin-top: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.eraser-modes button {
+  white-space: nowrap;
+  text-align: left;
+  padding: 6px 12px;
+  font-size: 0.9em;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.eraser-modes button:hover {
+  background: #444;
+}
+
+.eraser-modes button.active {
+  background: #666;
 }
