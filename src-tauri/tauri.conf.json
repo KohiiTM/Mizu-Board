@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Screen Annotator",
+  "productName": "Mizu Notes",
   "version": "0.1.0",
   "identifier": "com.screen-annotator.app",
   "build": {
@@ -12,10 +12,10 @@
   "app": {
     "windows": [
       {
-        "title": "Screen Annotator",
+        "title": "Mizu Notes",
         "width": 800,
         "height": 600,
-        "decorations": true,
+        "decorations":  true,
         "transparent": true,
         "alwaysOnTop": true,
         "fullscreen": false,

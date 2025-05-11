@@ -26,6 +26,20 @@ function App() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Get the device pixel ratio
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+
+    // Set the canvas size to match the display size
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+
+    // Scale the context to match the device pixel ratio
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.scale(dpr, dpr);
+    }
+
     // Store the current canvas content
     const storeCanvasContent = () => {
       const tempCanvas = document.createElement("canvas");
@@ -41,20 +55,20 @@ function App() {
     // Set canvas to full screen while preserving content
     const resizeCanvas = () => {
       const tempCanvas = storeCanvasContent();
+      const rect = canvas.getBoundingClientRect();
       const oldWidth = canvas.width;
       const oldHeight = canvas.height;
 
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      // Update canvas size
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
 
       const ctx = canvas.getContext("2d");
       if (ctx && tempCanvas) {
-        // Scale the content to fit the new dimensions
-        const scaleX = canvas.width / oldWidth;
-        const scaleY = canvas.height / oldHeight;
-        ctx.scale(scaleX, scaleY);
+        // Scale the context
+        ctx.scale(dpr, dpr);
+        // Draw the stored content
         ctx.drawImage(tempCanvas, 0, 0);
-        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
       }
     };
 
@@ -83,6 +97,19 @@ function App() {
     };
   }, []);
 
+  const getCanvasCoordinates = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  };
+
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -91,9 +118,7 @@ function App() {
     if (!ctx) return;
 
     setIsDrawing(true);
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const { x, y } = getCanvasCoordinates(e);
 
     ctx.beginPath();
     ctx.moveTo(x, y);
@@ -107,6 +132,7 @@ function App() {
 
     ctx.lineWidth = lineWidth;
     ctx.lineCap = "round";
+    ctx.lineJoin = "round";
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -118,9 +144,7 @@ function App() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const { x, y } = getCanvasCoordinates(e);
 
     ctx.lineTo(x, y);
     ctx.stroke();
