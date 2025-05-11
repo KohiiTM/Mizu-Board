@@ -8,6 +8,10 @@
     "opener:default",
     "core:window:allow-close",
     "core:window:allow-set-fullscreen",
-    "core:window:allow-toggle-maximize"
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-set-size",
+    "core:window:allow-set-position",
+    "core:window:allow-hide",
+    "core:window:allow-show"
   ]
 }

@@ -15,12 +15,15 @@
         "title": "Mizu Notes",
         "width": 800,
         "height": 600,
-        "decorations":  true,
+        "decorations": false,
         "transparent": true,
         "alwaysOnTop": true,
         "fullscreen": false,
         "resizable": true,
-        "center": true
+        "center": true,
+        "skipTaskbar": true,
+        "focus": false,
+        "visible": true
       }
     ],
     "security": {
