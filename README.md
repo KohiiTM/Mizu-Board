@@ -1,135 +1,65 @@
-# Screen Annotation App
+# Mizu Notes: Fluid On-Screen Annotation
 
-A Tauri-based screen annotation application that allows you to draw, write, and annotate directly on your screen. The application features a transparent window that can be toggled between windowed and fullscreen modes.
+**Mizu Notes** is a unique floating annotation tool that lets you draw and write directly _on top of_ your screen with effortless fluidity. It acts as your personal digital whiteboard, hovering above any application, window, or video.
+
+**Mizu Notes is perfect for:**
+
+- **Effortless Highlighting:** Instantly emphasize crucial points during presentations or while studying.
+- **Contextual Quick Notes:** Add timely thoughts, reminders, or feedback directly onto any active window or video.
+- **Clearer Screen Sharing:** Fluidly draw attention to specific areas, guiding your audience with precision.
+- **Temporary Markings:** Make annotations that are there when you need them and disappear cleanly without altering your underlying work.
+
+Think of **Mizu Notes** as a transparent, digital layer that floats above everything else on your screen, allowing your ideas and annotations to flow freely.
 
 ## Features
 
-- **Drawing Tools**
+- Draw directly on your screen with pen tool
+- Add text boxes anywhere
+- Object eraser for easy cleanup
+- Mouse tool for moving and editing text
+- Always-on-top transparent overlay
+- Keyboard shortcuts for quick tool switching
+- Works with live content (videos, presentations)
 
-  - Pen tool for freehand drawing
-  - Eraser tool for removing annotations
-  - Adjustable line width
-  - Custom color picker
-  - Clear canvas functionality
+## Quick Start
 
-- **Window Management**
-
-  - Resizable window
-  - Toggle fullscreen mode (F11 or Ctrl+F)
-  - Always-on-top window
-  - Transparent background
-  - Window decorations for easy management
-
-- **Keyboard Shortcuts**
-  - `F11` or `Ctrl+F`: Toggle fullscreen mode
-  - `Alt+F4`: Close application (Windows)
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v14 or later)
-- Rust (latest stable version)
-- Tauri CLI
-
-### Installation
-
-1. Clone the repository:
-
-```bash
-git clone [repository-url]
-cd tauri-app
-```
-
-2. Install dependencies:
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. Run the development server:
+2. Run in development:
 
 ```bash
 npm run tauri dev
 ```
 
-### Building
-
-To build the application:
+3. Build for production:
 
 ```bash
 npm run tauri build
 ```
 
-The built application will be available in the `src-tauri/target/release` directory.
+## Keyboard Shortcuts
 
-## Usage
-
-1. **Drawing**
-
-   - Select the Pen tool from the toolbar
-   - Choose a color using the color picker
-   - Adjust line width using the slider
-   - Click and drag to draw
-
-2. **Erasing**
-
-   - Select the Eraser tool from the toolbar
-   - Click and drag over areas you want to remove
-
-3. **Clearing**
-
-   - Click the "Clear" button to remove all annotations
-
-4. **Window Management**
-   - Drag the window by its title bar
-   - Resize using window edges
-   - Toggle fullscreen using F11 or Ctrl+F
-   - Close using the window close button or toolbar close button
+- `Alt + A`: Toggle annotation mode
+- `P`: Pen tool
+- `E`: Eraser tool
+- `T`: Text tool
+- `M`: Mouse tool
+- `Delete`: Remove selected text box
+- `Escape`: Exit text editing
 
 ## Development
 
-### Project Structure
+Built with:
 
-```
-tauri-app/
-├── src/                 # Frontend source code
-│   ├── App.tsx         # Main application component
-│   └── App.css         # Application styles
-├── src-tauri/          # Tauri backend code
-│   └── tauri.conf.json # Tauri configuration
-└── package.json        # Project dependencies
-```
-
-### Key Components
-
-- `App.tsx`: Contains the main application logic, including:
-
-  - Canvas drawing functionality
-  - Tool selection
-  - Window management
-  - Event handling
-
-- `App.css`: Defines the application's styling, including:
-  - Transparent background
-  - Toolbar layout
-  - Button styles
-  - Canvas positioning
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- Tauri (Rust backend)
+- React + TypeScript
+- Perfect Freehand for smooth drawing
+- Rough.js for sketchy aesthetics
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Built with [Tauri](https://tauri.app/)
-- React for the frontend
-- Canvas API for drawing functionality
+MIT

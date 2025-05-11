@@ -23,10 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Documentation and markdown files
-*.md
-docs/
-documentation/
 
 # Boilerplate and generated code
 *.generated.*

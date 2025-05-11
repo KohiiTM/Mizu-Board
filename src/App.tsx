@@ -105,15 +105,24 @@ function App() {
             setCurrentTool("mouse");
             break;
           case "Delete":
+          case "Backspace":
             if (selectedTextBox) {
-              setTextBoxes((prev) =>
-                prev.filter((box) => box.id !== selectedTextBox)
+              const selectedBox = textBoxes.find(
+                (box) => box.id === selectedTextBox
               );
-              setSelectedTextBox(null);
+              if (selectedBox && !selectedBox.isEditing) {
+                e.preventDefault();
+                setTextBoxes((prev) =>
+                  prev.filter((box) => box.id !== selectedTextBox)
+                );
+                setSelectedTextBox(null);
+                drawingCanvasRef.current?.clear();
+              }
             }
             break;
           case "Escape":
             if (selectedTextBox) {
+              e.preventDefault();
               handleTextBoxBlur(selectedTextBox);
             }
             break;
@@ -125,7 +134,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [isAnnotationMode]);
+  }, [isAnnotationMode, selectedTextBox]);
 
   const getCanvasCoordinates = (
     e: React.MouseEvent<HTMLCanvasElement | HTMLDivElement>
