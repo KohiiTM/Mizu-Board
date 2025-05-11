@@ -53,7 +53,6 @@ const TextBox: React.FC<TextBoxProps> = ({
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.button === 0) {
-      // Left click
       e.stopPropagation();
       setIsDragging(true);
       onMouseDown(e);

@@ -57,6 +57,9 @@ function App() {
       await appWindow.current.setIgnoreCursorEvents(false);
       await appWindow.current.setFocus();
     } else {
+      setTextBoxes([]);
+      setSelectedTextBox(null);
+
       await appWindow.current.setFullscreen(false);
       await appWindow.current.setIgnoreCursorEvents(true);
 
@@ -295,6 +298,16 @@ function App() {
               onChange={(e) => setLineWidth(Number(e.target.value))}
               title="Line Width"
             />
+            <button
+              onClick={() => {
+                setTextBoxes([]);
+                setSelectedTextBox(null);
+              }}
+              className="clear-button"
+              title="Clear Canvas (C)"
+            >
+              Clear
+            </button>
           </>
         )}
         <button
@@ -311,6 +324,15 @@ function App() {
             currentTool={currentTool}
             color={color}
             lineWidth={lineWidth}
+            onTextBoxCreate={(newTextBox) => {
+              setTextBoxes((prev) => [...prev, newTextBox]);
+              setSelectedTextBox(newTextBox.id);
+              setCurrentTool("mouse");
+            }}
+            onClear={() => {
+              setTextBoxes([]);
+              setSelectedTextBox(null);
+            }}
           />
           {textBoxes.map((box) => (
             <TextBox
