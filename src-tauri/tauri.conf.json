@@ -13,13 +13,13 @@
     "windows": [
       {
         "title": "Mizu Notes",
-        "width": 800,
+        "width": 400,
         "height": 600,
-        "decorations": false,
+        "decorations": true,
         "transparent": true,
         "alwaysOnTop": true,
         "fullscreen": false,
-        "resizable": true,
+        "resizable": false,
         "center": true,
         "skipTaskbar": false,
         "focus": false,

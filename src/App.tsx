@@ -52,24 +52,24 @@ function App() {
     setIsAnnotationMode(newMode);
 
     if (newMode) {
-      await appWindow.current.setFullscreen(true);
+      // Use more reliable screen size detection
+      const { availWidth, availHeight } = window.screen;
+
+      // Set the window to maximum available screen size
+      await appWindow.current.setSize(new LogicalSize(availWidth, availHeight));
+      await appWindow.current.setPosition(new LogicalPosition(0, 0));
+      await appWindow.current.setDecorations(false);
       await appWindow.current.setIgnoreCursorEvents(false);
       await appWindow.current.setFocus();
     } else {
       setTextBoxes([]);
       setSelectedTextBox(null);
 
-      await appWindow.current.setFullscreen(false);
+      const { availWidth } = window.screen;
+      const x = (availWidth - 400) / 2;
+      await appWindow.current.setSize(new LogicalSize(400, 60));
+      await appWindow.current.setPosition(new LogicalPosition(x, 20));
       await appWindow.current.setIgnoreCursorEvents(true);
-
-      const monitors = await Window.getAll();
-      const currentMonitor = monitors[0];
-      if (currentMonitor) {
-        const monitorSize = await currentMonitor.innerSize();
-        const x = (monitorSize.width - 400) / 2;
-        await appWindow.current.setSize(new LogicalSize(400, 60));
-        await appWindow.current.setPosition(new LogicalPosition(x, 20));
-      }
     }
   };
 
@@ -260,7 +260,7 @@ function App() {
           onClick={toggleAnnotationMode}
           title="Toggle Annotation Mode (Alt + A)"
         >
-          {isAnnotationMode ? "Disable" : "Enable"} Annotation
+          {isAnnotationMode ? "Exit Annotation" : "Annotate Screen"}
         </button>
         {isAnnotationMode && (
           <>
