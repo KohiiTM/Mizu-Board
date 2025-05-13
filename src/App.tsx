@@ -52,10 +52,9 @@ function App() {
     setIsAnnotationMode(newMode);
 
     if (newMode) {
-      // Use more reliable screen size detection
       const { availWidth, availHeight } = window.screen;
 
-      // Set the window to maximum available screen size
+      // maximum available screen size
       await appWindow.current.setSize(new LogicalSize(availWidth, availHeight));
       await appWindow.current.setPosition(new LogicalPosition(0, 0));
       await appWindow.current.setDecorations(false);
@@ -235,7 +234,6 @@ function App() {
     );
   };
 
-  // Add click outside handler to hide controls
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (isAnnotationMode && currentTool === "mouse") {

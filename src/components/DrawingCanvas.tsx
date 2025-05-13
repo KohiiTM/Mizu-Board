@@ -122,6 +122,26 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       }
     }, [isAnnotationMode]);
 
+    // Add effect to handle tool changes
+    useEffect(() => {
+      if (currentTool !== "text") {
+        setIsCreatingTextBox(false);
+        setCurrentMousePos({ x: 0, y: 0 });
+        setTextBoxStartPos({ x: 0, y: 0 });
+
+        // Clear the canvas and redraw
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.setLineDash([]); // Reset line dash
+          }
+        }
+        redrawStrokes();
+      }
+    }, [currentTool]);
+
     const getCanvasCoordinates = (e: React.MouseEvent<HTMLCanvasElement>) => {
       const canvas = canvasRef.current;
       if (!canvas) return { x: 0, y: 0 };
@@ -155,45 +175,51 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
+      // Clear the entire canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.setLineDash([]); // Reset line dash
 
-      strokes.forEach((stroke) => {
-        const outlinePoints = getStroke(stroke.points, {
-          size: stroke.width,
-          thinning: 0.5,
-          smoothing: 0.5,
-          streamline: 0.5,
+      // Only draw strokes if we're not in text tool mode
+      if (currentTool !== "text") {
+        strokes.forEach((stroke) => {
+          const outlinePoints = getStroke(stroke.points, {
+            size: stroke.width,
+            thinning: 0.5,
+            smoothing: 0.5,
+            streamline: 0.5,
+          });
+
+          ctx.fillStyle = stroke.color;
+          ctx.beginPath();
+          ctx.moveTo(outlinePoints[0][0], outlinePoints[0][1]);
+          for (let i = 1; i < outlinePoints.length; i++) {
+            ctx.lineTo(outlinePoints[i][0], outlinePoints[i][1]);
+          }
+          ctx.closePath();
+          ctx.fill();
         });
 
-        ctx.fillStyle = stroke.color;
-        ctx.beginPath();
-        ctx.moveTo(outlinePoints[0][0], outlinePoints[0][1]);
-        for (let i = 1; i < outlinePoints.length; i++) {
-          ctx.lineTo(outlinePoints[i][0], outlinePoints[i][1]);
-        }
-        ctx.closePath();
-        ctx.fill();
-      });
+        if (currentStroke.length > 0) {
+          const outlinePoints = getStroke(currentStroke, {
+            size: lineWidth,
+            thinning: 0.5,
+            smoothing: 0.5,
+            streamline: 0.5,
+          });
 
-      if (currentStroke.length > 0) {
-        const outlinePoints = getStroke(currentStroke, {
-          size: lineWidth,
-          thinning: 0.5,
-          smoothing: 0.5,
-          streamline: 0.5,
-        });
-
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(outlinePoints[0][0], outlinePoints[0][1]);
-        for (let i = 1; i < outlinePoints.length; i++) {
-          ctx.lineTo(outlinePoints[i][0], outlinePoints[i][1]);
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.moveTo(outlinePoints[0][0], outlinePoints[0][1]);
+          for (let i = 1; i < outlinePoints.length; i++) {
+            ctx.lineTo(outlinePoints[i][0], outlinePoints[i][1]);
+          }
+          ctx.closePath();
+          ctx.fill();
         }
-        ctx.closePath();
-        ctx.fill();
       }
 
-      if (isCreatingTextBox) {
+      // Only draw textbox outline if we're actively creating one
+      if (isCreatingTextBox && currentTool === "text") {
         ctx.beginPath();
         ctx.strokeStyle = "#4caf50";
         ctx.lineWidth = 2;
@@ -204,7 +230,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
           currentMousePos.x - textBoxStartPos.x,
           currentMousePos.y - textBoxStartPos.y
         );
-        ctx.setLineDash([]);
+        ctx.setLineDash([]); // Reset line dash after drawing
       }
     };
 
@@ -246,6 +272,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       const { x, y } = getCanvasCoordinates(e);
       setCurrentMousePos({ x, y });
 
+      // redraw if actively creating a textbox
       if (isCreatingTextBox && currentTool === "text") {
         redrawStrokes();
         return;
@@ -285,15 +312,19 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
 
         onTextBoxCreate?.(newTextBox);
         setIsCreatingTextBox(false);
+        setCurrentMousePos({ x: 0, y: 0 });
+        setTextBoxStartPos({ x: 0, y: 0 }); // Reset textbox start position
 
+        // Clear the canvas and redraw
         const canvas = canvasRef.current;
         if (canvas) {
           const ctx = canvas.getContext("2d");
           if (ctx) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            redrawStrokes();
+            ctx.setLineDash([]); // Reset line dash
           }
         }
+        redrawStrokes();
         return;
       }
 
