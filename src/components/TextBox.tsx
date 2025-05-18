@@ -18,8 +18,6 @@ interface TextBoxProps {
   currentTool: string;
   onTextChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
-  onMouseMove: () => void;
-  onMouseUp: () => void;
   onDoubleClick: () => void;
   onBlur: () => void;
   onColorChange: (color: string) => void;
@@ -43,8 +41,6 @@ const TextBox: React.FC<TextBoxProps> = ({
   currentTool,
   onTextChange,
   onMouseDown,
-  onMouseMove,
-  onMouseUp,
   onDoubleClick,
   onBlur,
   onColorChange,
@@ -56,7 +52,6 @@ const TextBox: React.FC<TextBoxProps> = ({
   onResize,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeDirection, setResizeDirection] = useState<string | null>(null);
   const dragStartPos = useRef({ x: 0, y: 0 });
@@ -72,7 +67,6 @@ const TextBox: React.FC<TextBoxProps> = ({
     if (currentTool !== "mouse") return;
     if (e.button === 0) {
       e.stopPropagation();
-      setIsDragging(true);
       dragStartPos.current = { x: e.clientX, y: e.clientY };
       onMouseDown(e);
     }

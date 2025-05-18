@@ -28,8 +28,6 @@ function App() {
   const drawingCanvasRef = useRef<DrawingCanvasRef>(null);
   const [textBoxes, setTextBoxes] = useState<TextBox[]>([]);
   const [selectedTextBox, setSelectedTextBox] = useState<string | null>(null);
-  const [isDraggingTextBox, setIsDraggingTextBox] = useState(false);
-  const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const initWindow = async () => {
@@ -135,17 +133,6 @@ function App() {
     };
   }, [isAnnotationMode, selectedTextBox, textBoxes]);
 
-  const getCanvasCoordinates = (
-    e: React.MouseEvent<HTMLCanvasElement | HTMLDivElement>
-  ) => {
-    const target = e.currentTarget;
-    const rect = target.getBoundingClientRect();
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    };
-  };
-
   const handleTextBoxMouseDown = (
     e: React.MouseEvent<HTMLDivElement>,
     id: string
@@ -161,7 +148,6 @@ function App() {
     const boxX = box.x;
     const boxY = box.y;
 
-    setIsDraggingTextBox(true);
     setSelectedTextBox(id);
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -182,21 +168,12 @@ function App() {
     };
 
     const handleMouseUp = () => {
-      setIsDraggingTextBox(false);
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
 
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
-  };
-
-  const handleTextBoxMove = () => {
-    // This is now handled by the mousemove event listener
-  };
-
-  const handleTextBoxMouseUp = () => {
-    // This is now handled by the mouseup event listener
   };
 
   const handleTextBoxDoubleClick = (id: string) => {
@@ -381,8 +358,6 @@ function App() {
               currentTool={currentTool}
               onTextChange={handleTextChange}
               onMouseDown={(e) => handleTextBoxMouseDown(e, box.id)}
-              onMouseMove={handleTextBoxMove}
-              onMouseUp={handleTextBoxMouseUp}
               onDoubleClick={() => handleTextBoxDoubleClick(box.id)}
               onBlur={() => handleTextBoxBlur(box.id)}
               onColorChange={(color) => handleTextBoxColorChange(box.id, color)}
