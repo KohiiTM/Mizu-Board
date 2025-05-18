@@ -16,6 +16,7 @@ interface TextBox {
   isEditing: boolean;
   textColor: string;
   backgroundColor: string;
+  opacity: number;
 }
 
 function App() {
@@ -115,7 +116,6 @@ function App() {
                   prev.filter((box) => box.id !== selectedTextBox)
                 );
                 setSelectedTextBox(null);
-                drawingCanvasRef.current?.clear();
               }
             }
             break;
@@ -133,7 +133,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [isAnnotationMode, selectedTextBox]);
+  }, [isAnnotationMode, selectedTextBox, textBoxes]);
 
   const getCanvasCoordinates = (
     e: React.MouseEvent<HTMLCanvasElement | HTMLDivElement>
@@ -153,43 +153,50 @@ function App() {
     if (!isAnnotationMode || currentTool !== "mouse") return;
     e.stopPropagation();
 
-    const { x, y } = getCanvasCoordinates(
-      e as unknown as React.MouseEvent<HTMLCanvasElement>
-    );
+    const box = textBoxes.find((b) => b.id === id);
+    if (!box) return;
+
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    const boxX = box.x;
+    const boxY = box.y;
+
     setIsDraggingTextBox(true);
-    setDragStartPos({ x, y });
     setSelectedTextBox(id);
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - mouseX;
+      const deltaY = e.clientY - mouseY;
+
+      setTextBoxes((prev) =>
+        prev.map((b) =>
+          b.id === id
+            ? {
+                ...b,
+                x: boxX + deltaX,
+                y: boxY + deltaY,
+              }
+            : b
+        )
+      );
+    };
+
+    const handleMouseUp = () => {
+      setIsDraggingTextBox(false);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
   };
 
-  const handleTextBoxMove = (
-    e: React.MouseEvent<HTMLDivElement>,
-    id: string
-  ) => {
-    if (!isAnnotationMode || !isDraggingTextBox || !e.buttons) return;
-
-    const { x, y } = getCanvasCoordinates(
-      e as unknown as React.MouseEvent<HTMLCanvasElement>
-    );
-    const deltaX = x - dragStartPos.x;
-    const deltaY = y - dragStartPos.y;
-
-    setTextBoxes((prev) =>
-      prev.map((box) =>
-        box.id === id
-          ? {
-              ...box,
-              x: box.x + deltaX,
-              y: box.y + deltaY,
-            }
-          : box
-      )
-    );
-
-    setDragStartPos({ x, y });
+  const handleTextBoxMove = () => {
+    // This is now handled by the mousemove event listener
   };
 
   const handleTextBoxMouseUp = () => {
-    setIsDraggingTextBox(false);
+    // This is now handled by the mouseup event listener
   };
 
   const handleTextBoxDoubleClick = (id: string) => {
@@ -224,7 +231,13 @@ function App() {
     );
   };
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTextBoxOpacityChange = (id: string, opacity: number) => {
+    setTextBoxes((prev) =>
+      prev.map((box) => (box.id === id ? { ...box, opacity } : box))
+    );
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (!selectedTextBox) return;
 
     setTextBoxes((prev) =>
@@ -238,7 +251,10 @@ function App() {
     const handleClickOutside = (e: MouseEvent) => {
       if (isAnnotationMode && currentTool === "mouse") {
         const target = e.target as HTMLElement;
-        if (!target.closest(".text-box")) {
+        if (
+          !target.closest(".text-box") &&
+          !target.closest(".text-box-control-panel")
+        ) {
           setSelectedTextBox(null);
         }
       }
@@ -249,6 +265,12 @@ function App() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isAnnotationMode, currentTool]);
+
+  const handleTextBoxResize = (id: string, width: number, height: number) => {
+    setTextBoxes((prevBoxes) =>
+      prevBoxes.map((box) => (box.id === id ? { ...box, width, height } : box))
+    );
+  };
 
   return (
     <div className={`app-container ${isAnnotationMode ? "active" : ""}`}>
@@ -333,7 +355,10 @@ function App() {
             color={color}
             lineWidth={lineWidth}
             onTextBoxCreate={(newTextBox) => {
-              setTextBoxes((prev) => [...prev, newTextBox]);
+              setTextBoxes((prev) => [
+                ...prev,
+                { ...newTextBox, opacity: 0.5 },
+              ]);
               setSelectedTextBox(newTextBox.id);
               setCurrentTool("mouse");
             }}
@@ -356,7 +381,7 @@ function App() {
               currentTool={currentTool}
               onTextChange={handleTextChange}
               onMouseDown={(e) => handleTextBoxMouseDown(e, box.id)}
-              onMouseMove={(e) => handleTextBoxMove(e, box.id)}
+              onMouseMove={handleTextBoxMove}
               onMouseUp={handleTextBoxMouseUp}
               onDoubleClick={() => handleTextBoxDoubleClick(box.id)}
               onBlur={() => handleTextBoxBlur(box.id)}
@@ -364,8 +389,15 @@ function App() {
               onBackgroundColorChange={(color) =>
                 handleTextBoxBackgroundColorChange(box.id, color)
               }
+              onOpacityChange={(opacity) =>
+                handleTextBoxOpacityChange(box.id, opacity)
+              }
               textColor={box.textColor}
               backgroundColor={box.backgroundColor}
+              opacity={box.opacity}
+              onResize={(width, height) =>
+                handleTextBoxResize(box.id, width, height)
+              }
             />
           ))}
         </div>
