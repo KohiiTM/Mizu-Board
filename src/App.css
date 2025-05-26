@@ -112,11 +112,13 @@ button {
   position: relative;
   overflow: hidden;
   pointer-events: none;
+  background: transparent !important;
 }
 
 .app-container.active {
   pointer-events: auto;
   position: relative;
+  background: transparent !important;
 }
 
 .app-container.active::before {
@@ -139,6 +141,7 @@ button {
   height: 100vh;
   z-index: 1;
   cursor: default;
+  background: transparent !important;
 }
 
 .drawing-canvas {
@@ -151,6 +154,7 @@ button {
   pointer-events: auto;
   z-index: 1;
   mix-blend-mode: multiply;
+  background: transparent !important;
 }
 
 /* Add cursor styles for different tools */

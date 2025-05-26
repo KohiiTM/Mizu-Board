@@ -58,7 +58,6 @@ function App() {
       await appWindow.current.setPosition(new LogicalPosition(0, 0));
       await appWindow.current.setDecorations(false);
       await appWindow.current.setIgnoreCursorEvents(false);
-      await appWindow.current.setFocus();
     } else {
       setTextBoxes([]);
       setSelectedTextBox(null);

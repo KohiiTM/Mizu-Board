@@ -23,7 +23,12 @@
         "center": true,
         "skipTaskbar": false,
         "focus": false,
-        "visible": true
+        "visible": true,
+        "contentProtected": false,
+        "theme": "Light",
+        "parent": null,
+        "shadow": false,
+        "acceptFirstMouse": false
       }
     ],
     "security": {
