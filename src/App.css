@@ -117,20 +117,8 @@ button {
 
 .app-container.active {
   pointer-events: auto;
-  position: relative;
-  background: transparent !important;
-}
-
-.app-container.active::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: transparent;
-  pointer-events: none;
-  z-index: 0;
+  /* Inherits background from .app-container */
+  /* position: relative; is inherited or can be specified if needed */
 }
 
 .canvas-container {
@@ -153,25 +141,29 @@ button {
   cursor: default;
   pointer-events: auto;
   z-index: 1;
-  mix-blend-mode: multiply;
   background: transparent !important;
+  opacity: 1;
 }
 
-/* Add cursor styles for different tools */
+/* Make canvas transparent to mouse events when using mouse tool */
+.drawing-canvas[data-tool="mouse"] {
+  cursor: default;
+  pointer-events: none;
+}
+
 .drawing-canvas[data-tool="pen"] {
   cursor: default;
+  pointer-events: auto;
 }
 
 .drawing-canvas[data-tool="eraser"] {
   cursor: default;
+  pointer-events: auto;
 }
 
 .drawing-canvas[data-tool="text"] {
   cursor: crosshair;
-}
-
-.drawing-canvas[data-tool="mouse"] {
-  cursor: default;
+  pointer-events: auto;
 }
 
 .toolbar {
@@ -179,37 +171,39 @@ button {
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.6);
   padding: 10px;
   border-radius: 8px;
   display: flex;
   gap: 10px;
   align-items: center;
   z-index: 1000;
-  transition: opacity 0.3s ease;
-  opacity: 0.15;
+  transition: opacity 0.3s ease, background-color 0.3s ease;
   pointer-events: auto;
-  min-width: 400px;
-  backdrop-filter: blur(8px);
 }
 
 /* Styles for toolbar when annotation mode is off */
 .toolbar:not(.active) {
-  backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   opacity: 1;
-  transition: none;
   background: rgba(0, 0, 0, 0.75);
-  min-width: unset;
+  min-width: auto;
   width: auto;
   min-height: 60px;
   padding: 8px;
   justify-content: center;
 }
 
+/* Toolbar when annotation mode is ON */
+.toolbar.active {
+  opacity: 0.15;
+  background: transparent;
+  min-width: 400px;
+}
+
 .toolbar.active:hover {
   opacity: 1;
+  background: rgba(0, 0, 0, 0.7);
 }
 
 /* annotation mode off */
@@ -392,7 +386,6 @@ body {
   flex-direction: column;
   gap: 12px;
   z-index: 1000;
-  backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   pointer-events: auto;
 }

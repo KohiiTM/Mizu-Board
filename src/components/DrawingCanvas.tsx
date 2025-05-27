@@ -94,6 +94,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.scale(dpr, dpr);
+        // Ensure the canvas is completely transparent
+        ctx.globalCompositeOperation = "source-over";
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         roughCanvasRef.current = new RoughCanvas(canvas);
       }
 
@@ -107,6 +110,8 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
         const ctx = canvas.getContext("2d");
         if (ctx) {
           ctx.scale(dpr, dpr);
+          ctx.globalCompositeOperation = "source-over";
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
           roughCanvasRef.current = new RoughCanvas(canvas);
           redrawStrokes();
         }
@@ -354,6 +359,9 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(
         onMouseUp={stopDrawing}
         onMouseOut={stopDrawing}
         className="drawing-canvas"
+        style={{
+          pointerEvents: currentTool === "mouse" ? "none" : "auto",
+        }}
       />
     );
   }

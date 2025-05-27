@@ -58,6 +58,7 @@ function App() {
       await appWindow.current.setPosition(new LogicalPosition(0, 0));
       await appWindow.current.setDecorations(false);
       await appWindow.current.setIgnoreCursorEvents(false);
+      await appWindow.current.setAlwaysOnTop(true);
     } else {
       setTextBoxes([]);
       setSelectedTextBox(null);
@@ -67,6 +68,7 @@ function App() {
       await appWindow.current.setSize(new LogicalSize(400, 60));
       await appWindow.current.setPosition(new LogicalPosition(x, 20));
       await appWindow.current.setIgnoreCursorEvents(true);
+      await appWindow.current.setAlwaysOnTop(true);
     }
   };
 
